@@ -24,7 +24,7 @@
 // Constants
 const uint16_t SCREEN_WIDTH = 100;
 const uint16_t SCREEN_HEIGHT = 100;
-const uint16_t POSX = 10;
+const uint16_t POSX = 10; 
 const uint16_t POSY = 10;
 
 /**
@@ -98,29 +98,33 @@ class AmigaWindow {
 		}
 
 		/**
-		 * Draws the bouncing ball no screen
+		 * Draws the bouncing ball on screen
 		 */
 		void drawBounce() {
 			BallPos oldPos = ballpos;
-			if(ballpos.posx == 0) {
+			if(ballpos.posx == 10) {
 				bounceDirX = 1;
-			} else if(ballpos.posx == winsize.width) {
+			} else if(ballpos.posx == winsize.width - 10) {
 				bounceDirX = -1;
 			}
-			if(ballpos.posy == 0) {
+			if(ballpos.posy == 10) {
 				bounceDirY = 1;
-			} else if(ballpos.posy == winsize.height) {
+			} else if(ballpos.posy == winsize.height - 10) {
 				bounceDirY = -1;
 			}
 
 			ballpos.posx += bounceDirX;
 			ballpos.posy += bounceDirY;
 
-			SetAPen(rp, (ULONG) 1);
-			WritePixel(rp, oldPos.posx, oldPos.posy);
+			SetAPen(rp, (ULONG) 0);
+			DrawEllipse(rp, oldPos.posx + 1, oldPos.posy + 1, 5, 5);
+			DrawEllipse(rp, oldPos.posx, oldPos.posy, 5, 5);
 
-			SetAPen(rp, (ULONG) 16);
-			WritePixel(rp, ballpos.posx, ballpos.posy);
+			SetAPen(rp, (ULONG) 1);
+			DrawEllipse(rp, ballpos.posx + 1, ballpos.posy + 1, 5, 5);
+
+			SetAPen(rp, (ULONG) 2);
+			DrawEllipse(rp, ballpos.posx, ballpos.posy, 5, 5);
 		
 		}
 
@@ -159,27 +163,27 @@ class AmigaWindow {
 		 * Window loop for program
 		 */
 		void runLoop() {
-			ballpos = {15, 15}; // Temp for now
+			ballpos = {15, 20}; // Temp for now
 			bounceDirX = 1; // Temp for now
 			bounceDirY = -1; // Temp for now
 			
-
-
+			drawBounce();
 			bool stop = false;
 			while(!bad && !stop) {
-				Wait(1L << window->UserPort->mp_SigBit);
-				msg = GT_GetIMsg(window->UserPort);
-				msgClass = msg->Class;
-				GT_ReplyIMsg(msg);
-				if(msgClass == IDCMP_CLOSEWINDOW) {
-					CloseWindow(window);
-					stop = true;
-					window = nullptr;
-				} else if(msgClass == IDCMP_REFRESHWINDOW) {
-					RefreshWindowFrame(window);
+				// If there is a message in the queue, handle it
+				if(msg = GT_GetIMsg(window->UserPort)) {
+					msgClass = msg->Class;
+					GT_ReplyIMsg(msg);
+					if(msgClass == IDCMP_CLOSEWINDOW) {
+						CloseWindow(window);
+						stop = true;
+						window = nullptr;
+					} else if(msgClass == IDCMP_REFRESHWINDOW) {
+						RefreshWindowFrame(window);
+					}
 				}
-
-				//drawBounce();
+				drawBounce();
+				Delay(10);
 			}
 		}
 
