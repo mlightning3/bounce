@@ -75,8 +75,6 @@ class AmigaWindow {
 
 		/**
 		 * Initialize the window
-		 * @param winposition Position of window
-		 * @param winsize Size of window
 		 */
 		void init() {
 			bad = false;
