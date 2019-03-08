@@ -27,6 +27,50 @@ const uint16_t SCREEN_HEIGHT = 100;
 const uint16_t POSX = 10; 
 const uint16_t POSY = 10;
 
+// Sprite Data
+const uint16_t BALL_SIZE = 15; // Number of lines in sprite
+
+/* Line data
+ *
+ * 2x:
+ * 00000000 00000000 | 0x0000
+ * 00000000 00000000 | 0x0000
+ *
+ * 00000011 10000000 | 0x0380
+ * 00000000 00000000 | 0x0000
+ *
+ * 00001111 11100000 | 0x0FE0
+ * 00000000 00000000 | 0x0000
+ *
+ * 2x:
+ * 00011111 11110000 | 0x1FF0
+ * 00000000 00000000 | 0x0000
+ * 3x:
+ * 00111111 11111000 | 0x3FF8
+ * 00000000 00000000 | 0x0000
+ *
+ */
+
+// This should get placed in chip memory by compiler
+__chip WORD ballSprite[] = { 0x0000, 0x0000,
+						0x0000, 0x0000,
+						0x0000, 0x0380,
+						0x0000, 0x0FE0,
+						0x0000, 0x1FF0,
+						0x0000, 0x1FF0,
+						0x0000, 0x3FF8,
+						0x0000, 0x3FF8,
+						0x0000, 0x3FF8,
+						0x0000, 0x1FF0,
+						0x0000, 0x1FF0,
+						0x0000, 0x0FE0,
+						0x0000, 0x0380,
+						0x0000, 0x0000,
+						0x0000, 0x0000 };
+
+WORD ballColors[] = { 0x0000, 0x00F0, 0x0F00 };
+
+
 /**
  * WindowPos
  * Keeps track of window position
