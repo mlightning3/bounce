@@ -17,6 +17,7 @@
 #include <proto/exec.h>
 #include <proto/dos.h>
 #include <intuition/intuition.h>
+#include <graphics/gels.h>
 
 #include <stdint.h>
 #include <stdlib.h>
@@ -70,6 +71,8 @@ __chip WORD ballSprite[] = { 0x0000, 0x0000,
 
 WORD ballColors[] = { 0x0000, 0x00F0, 0x0F00 };
 
+// sprite struct
+
 
 /**
  * WindowPos
@@ -108,6 +111,8 @@ class AmigaWindow {
 		struct BallPos ballpos;
 		int bounceDirX;
 		int bounceDirY;
+		struct VSprite *vsprite;
+		struct GelsInfo *ginfo;
 
 		struct WindowPos winposition;
 		struct WindowSize winsize;
@@ -135,8 +140,33 @@ class AmigaWindow {
 				rp = window->RPort;
 				if(rp == nullptr) {
 					bad = true;
+				} else {
+					initSprite();
 				}
 			}
+		}
+
+		/**
+		 * Sets up sprite
+		 */
+		void initSprite() {
+			if(!bad) {
+				if(NULL == (vsprite = makeVSprite(&vsprite))) {
+					bad = true;
+				} else {
+					AddVSprite(vsprite, rp);
+					spriteDrawList();
+				}
+			}
+		}
+
+		/**
+		 * Sprite redrawing routines
+		 */
+		void spriteDrawList() {
+			SortGList(rp);
+			DrawGList(rp, ViewPortAddress(window));
+			RethinkDisplay();
 		}
 
 		/**
@@ -195,6 +225,13 @@ class AmigaWindow {
 		 * Cleans up window
 		 */
 		~AmigaWindow() {
+			if(vsprite != nullptr) {
+				RemVSprite(vsprite);
+				freeVSprite(vsprite);
+				vsprite = nullptr;
+				spriteDrawList();
+				cleanupGelSys(ginfo, rp);
+			}
 			if(window != nullptr) {
 				CloseWindow(window);
 				window = nullptr;
